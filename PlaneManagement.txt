@@ -1,0 +1,211 @@
+import java.util.Scanner;
+
+public class W1776100_PlaneManagement {
+    private static final int ROWS = 4;
+    private static final int[] SEATS_PER_ROW = {14, 12, 12, 14};
+    private static final int[][] seats = new int[ROWS][14];
+    private static final Ticket[] tickets = new Ticket[ROWS * 14];
+   
+
+    public static void main(String[] args) {
+        System.out.println("Welcome to the Plane Management application");
+        Scanner scanner = new Scanner(System.in);
+        int option;
+        
+        
+        do {
+            System.out.println("");
+            System.out.println("*****************************************");
+            System.out.println("*            MENU OPTIONS               *");
+            System.out.println("     1. Buy a seat");
+            System.out.println("     2. Cancel a seat");
+            System.out.println("     3. Find first available seat");
+            System.out.println("     4. Show seating plan");
+            System.out.println("     5. Print tickets info");
+            System.out.println("     6. Search for a ticket");
+            System.out.println("     0. Exit");
+            System.out.println("*****************************************");
+            System.out.print("Please select an option: ");
+            option = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            
+            switch (option) {
+                case 1:
+                    buy_Seat(scanner);
+                    break;
+                case 2:
+                    cancel_Seat(scanner);
+                    break;
+                case 3:
+                    find_First_Available();
+                    break;
+                case 4:
+                    show_Seating_Plan();
+                    break;
+                case 5:
+                    print_Tickets_Info();
+                    break;
+                case 6:
+                    search_Ticket(scanner);
+                    break;
+                case 0:
+                    System.out.println("Exiting...");
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        } while (option != 0);
+        
+        scanner.close();
+    }
+
+    private static void buy_Seat(Scanner scanner) {
+        System.out.print("Select a row letter that you want (A-D): ");
+        char rowLetter = scanner.nextLine().charAt(0);
+        System.out.print("Pick your seat: ");
+        int seatNumber = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        int row = rowLetter - 'A';
+        if (row >= 0 && row < ROWS && seatNumber >= 1 && seatNumber <= SEATS_PER_ROW[row]) {
+            int seatIndex = seatNumber - 1;
+            if (seats[row][seatIndex] == 0) {
+                // Seat is available
+                System.out.print("Enter your name: ");
+                String name = scanner.nextLine();
+                System.out.print("Enter your surname: ");
+                String surname = scanner.nextLine();
+                System.out.print("Enter your email: ");
+                String email = scanner.nextLine();
+                person.setName(name);
+                person.setSurname(surname);
+                person.setEmail(email);
+                int price = getPrice(rowLetter, seatNumber);
+                Ticket ticket = new Ticket(rowLetter, seatNumber, price, person);
+                seats[row][seatIndex] = 1;
+                tickets[row * SEATS_PER_ROW[row] + seatIndex] = ticket;
+                ticket.save();
+                System.out.println("Ticket purchased successfully.");
+            } else {
+                System.out.println("Seat is already booked.");
+            }
+        } else {
+            System.out.println("Invalid row or seat number.");
+        }
+    }
+
+    private static void cancel_Seat(Scanner scanner) {
+        System.out.print("Enter row letter that you choosen (A-D): ");
+        char rowLetter = scanner.nextLine().charAt(0);
+        System.out.print("Enter your booked seat number: ");
+        int seatNumber = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        int row = rowLetter - 'A';
+        if (row >= 0 && row < ROWS && seatNumber >= 1 && seatNumber <= SEATS_PER_ROW[row]) {
+            int seatIndex = seatNumber - 1;
+            if (seats[row][seatIndex] == 1) {
+                seats[row][seatIndex] = 0;
+                tickets[row * SEATS_PER_ROW[row] + seatIndex] = null;
+                System.out.println("Seat cancelled successfully.");
+            } else {
+                System.out.println("Seat is already available.");
+            }
+        } else {
+            System.out.println("Invalid row or seat number.");
+        }
+    }
+
+    private static void find_First_Available() {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < SEATS_PER_ROW[i]; j++) {
+                if (seats[i][j] == 0) {
+                    char rowLetter = (char) ('A' + i);
+                    int seatNumber = j + 1;
+                    System.out.println("First available seat: " + rowLetter + seatNumber);
+                    return;
+                }
+            }
+        }
+        System.out.println("No available seats.");
+    }
+    
+    
+
+    private static void show_Seating_Plan() {
+        System.out.println("Seating Plan:");
+        System.out.println("  1 2 3 4 5 6 7 8 9 10 11 12 13 14");
+        for (int i = 0; i < ROWS; i++) {
+            char rowLetter = (char) ('A' + i);
+            System.out.print(rowLetter + " ");
+            if (rowLetter == 'B' || rowLetter == 'C') {
+                System.out.print("");
+            }
+            for (int j = 0; j < SEATS_PER_ROW[i]; j++) {
+                System.out.print(seats[i][j] == 0 ? "O " : "X ");
+            }
+            System.out.println();
+        }
+        System.out.println("\n  Price List.");
+        System.out.println("Seat 1-5   : £200");
+        System.out.println("Seat 6-9   : £150");
+        System.out.println("Seat 10-14 : £180");
+    }
+    
+
+    private static void print_Tickets_Info() {
+        int totalAmount = 0;
+        for (Ticket ticket : tickets) {
+            if (ticket != null) {
+                System.out.println("*----------------------------------------------*");
+                System.out.println("Your booked ticket and person informations:");
+                System.out.println(ticket.getPerson());
+                System.out.println("Seat:" + ticket.getRow() + ticket.getSeat());
+                System.out.println("Price: £" + ticket.getPrice());
+                System.out.println("*----------------------------------------------*");
+                
+                totalAmount += ticket.getPrice();
+            }
+        }
+        System.out.println("Total amount: £" + totalAmount);
+    }
+
+    private static void search_Ticket(Scanner scanner) {
+        System.out.print("Enter row letter (A-D): ");
+        char rowLetter = scanner.nextLine().charAt(0);
+        System.out.print("Enter seat number: ");
+        int seatNumber = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        int row = rowLetter - 'A';
+        int seatIndex = seatNumber - 1;
+        if (row >= 0 && row < ROWS && seatNumber >= 1 && seatNumber <= SEATS_PER_ROW[row]) {
+            if (seats[row][seatIndex] == 1) {
+                Ticket ticket = tickets[row * SEATS_PER_ROW[row] + seatIndex];
+                System.out.println("Ticket info:");
+                System.out.println(ticket);
+            } else {
+                System.out.println("This seat is available.");
+            }
+        } else {
+            System.out.println("Invalid row or seat number.");
+        }
+    }
+    
+    private static final Person person = new Person("", "", "");
+    
+  
+
+    private static int getPrice(char rowLetter, int seatNumber) {
+        if (seatNumber >= 1 && seatNumber <= 4) {
+            return 200;
+        } else if (seatNumber >= 5 && seatNumber <= 9) {
+            return 150;
+        } else if (seatNumber >= 10 && seatNumber <= 14) {
+            return 180;
+        } else {
+            // Handle invalid seat numbers here, if needed
+            return -1; // Or throw an exception
+        }
+    }
+}
